@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <style>
+        .country {
+            fill: #fff;
+            stroke: none;
+        }
+        .outline {
+            stroke: black;
+            stroke-width: 1px;
+            fill: none;
+        }
+        .centroid {
+            fill-opacity: 0.7;
+        }
+        .legend span {
+            margin-right: 5px;
+        }
+        .gridlines line {
+            stroke: #bbb;
+        }
+        .gridlines .domain {
+            stroke: none;
+        }
+    </style>
+    <title>Project 1</title>
+</head>
+
+<body>
+    <h1>Gender Pay Gap by Country</h1>
+    <svg id="choropleth" height="600" width="900" style="background: lightgrey; margin-top:20px" >
+    </svg>
+  
+    <svg id="colorLegend" height="100" width="900" style="background: #fff; margin-top:20px" >
+    </svg>
+
+    <svg id="chart" height="600" width="900" style="background: #fff; margin-top:20px">
+    </svg>
+
+    <script id="map">
+        const svg= d3.select("#choropleth");
+        const width= svg.attr("width");
+        const height= svg.attr("height");
+        const margin = { top: 0, right: 0, bottom: 0, left:0};
+        const mapWidth = width - margin.left - margin.right;
+        const mapHeight = height - margin.top - margin.bottom;
+        const map = svg.append("g")
+                        .attr("transform","translate("+margin.left+","+margin.top+")");
+        const requestData= async () => {
+            // https://github.com/topojson/world-atlas#world/110m.json 
+            const world = await d3.json("world.json");
+            console.log(world);
+            var countries= topojson.feature(world, world.objects.countries);
+            var features= countries.features;
+            var projection= d3.geoEqualEarth().fitSize([mapWidth, mapHeight], countries);
+            var path= d3.geoPath().projection(projection);
+
+            map.selectAll("path").data(countries.features)
+                .enter()
+                .append("path")
+                .attr("class", "country")
+                .attr("d", path)
+                .attr("note", d=> d.id);
+            map.append("path")
+                .datum(topojson.mesh(world, world.objects.countries))
+                .attr("class", "outline")
+                .attr("d", path);
+            
+            var centroids= features.map(function (feature) {
+                return path.centroid(feature);
+            })
+
+            const genderData= await d3.csv("gendergap.csv");
+            console.log(genderData);
+
+            const countryID= await d3.tsv("countries.tsv");
+            console.log(countryID);
+
+            let countryWageGap= {};
+            let countryEducationGap= {};
+            let idToCountry= {};
+            countryID.forEach( row => {
+                countryWageGap[row.name]= 0;
+                countryEducationGap[row.name]=0;
+                idToCountry[row.iso_n3]= row.name;
+            });
+            genderData.forEach( row=> {
+                if (row.year=="2016" && row.type=="economic"){
+                    countryWageGap[row.country]= Number(row.score);
+                }
+                if (row.year=="2016" && row.type=="education"){
+                    countryEducationGap[row.country]= Number(row.score);
+                }
+            });
+
+            console.log(idToCountry);
+            console.log(countryWageGap)
+            
+            const minMax= d3.extent(countryID, d=> countryWageGap[d.name]).reverse();
+            const colorScale= d3.scaleSequential(d3.interpolateReds).domain(minMax);
+            const minMaxEducation= d3.extent(countryID, d=> countryEducationGap[d.name]).reverse();
+            const radScale= d3.scaleLinear().domain(minMaxEducation).range([5,30]);
+
+            map.selectAll(".centroid").data(features)
+                .enter().append("circle")
+                    .attr("class", "centroid")
+                    .attr("fill", d => colorScale( countryWageGap[ idToCountry[d.id] ] ))
+                    .style("fill-opacity", function(d){ 
+                        if (countryWageGap[ idToCountry[d.id] ]==0.0){ return 0.0}
+                    })
+                    .attr("r", d=> radScale(countryEducationGap[idToCountry[d.id]]))
+                    .attr("cx", function (d){ return path.centroid(d)[0]; })
+                    .attr("cy", function (d){ return path.centroid(d)[1]; });
+
+
+            const legend= d3.select("#colorLegend");
+            const legendWidth= legend.attr("width")
+            const legendHeight = legend.attr("height");
+            const barHeight = 60;
+            const stepSize = 4;
+            const pixelScale = d3.scaleLinear().domain([0,legendWidth-40]).range([minMax[0],minMax[1]]); // In this case the "data" are pixels, and we get numbers to use in colorScale
+            const barScale = d3.scaleLinear().domain([minMax[0],minMax[1]]).range([0,legendWidth-40]);
+            const barAxis = d3.axisBottom(barScale);
+            legend.append("g")
+                .attr("class", "colorbar axis")
+                .attr("transform","translate("+(20)+","+(barHeight+5)+")")
+                .call(barAxis);
+                let bar = legend.append("g").attr("transform","translate("+(20)+","+(0)+")")
+            for (let i=0; i<legendWidth-40; i=i+stepSize) {
+            bar.append("rect")
+                .attr("x", i)
+                .attr("y", 0)
+                .attr("width", stepSize)
+                .attr("height",barHeight)
+                .style("fill", colorScale( pixelScale(i) )); 
+            }
+
+            bar.append("line").attr("stroke","white").attr("stroke-width",3).attr("x1", barScale(minMax[0])).attr("x2", barScale(minMax[0])).attr("y1", 0).attr("y1", barHeight+4);
+            bar.append("line").attr("stroke","white").attr("stroke-width",3).attr("x1", barScale(minMax[1])).attr("x2", barScale(minMax[1])).attr("y1", 0).attr("y1", barHeight+4);
+
+            const chart= d3.select("#chart");
+            const svgWidth= svg.attr("width");
+            const svgHeight= svg.attr("height");
+            const chartMargin = { top: 100, right: 100, bottom: 100, left: 100};
+            let chartWidth= svgWidth - chartMargin.left - chartMargin.right;
+            let chartHeight= svgHeight - chartMargin.top - chartMargin.bottom;
+            const wageScale= d3.scaleLinear().domain(minMax.reverse()).range([0,chartWidth]);
+            const educationScale= d3.scaleLinear().domain(minMaxEducation.reverse()).range([chartHeight, 0]);
+            let leftAxis= d3.axisLeft(educationScale).ticks(20);
+            chart.append("g")
+                .attr("transform", "translate("+ chartMargin.left +","+ chartMargin.top +")")
+                .call(leftAxis);
+            let bottomAxis= d3.axisBottom(wageScale).ticks(20)
+            let element= chart.append("g")
+                .attr("transform", "translate("+ chartMargin.left +","+ (chartMargin.top + chartHeight) +")");
+            bottomAxis(element);
+            let leftGridlines= d3.axisLeft(educationScale).tickSize(-chartWidth-10).tickFormat("");
+            chart.append("g").attr("class", "gridlines")
+                .attr("transform","translate("+ chartMargin.left +","+ chartMargin.top +")")
+                .call(leftGridlines);
+            let bottomGridlines = d3.axisBottom(wageScale).tickSize(-chartHeight).tickFormat("").ticks(20);
+            element = chart.append("g").attr("class", "gridlines")
+                .attr("transform","translate("+ chartMargin.left +","+ (chartMargin.top + chartHeight) +")");
+            bottomGridlines(element);
+            let scatter = chart.append("g")
+                .attr("transform","translate("+chartMargin.left+","+chartMargin.top+")");
+            let count=0
+            countryID.forEach( row => {
+                let wage= wageScale(countryWageGap[idToCountry[row.iso_n3]]);
+                let education= educationScale(countryEducationGap[idToCountry[row.iso_n3]]);
+                if (wage!=0.0 && education!=0.0){
+                    let circle= scatter.append("circle")
+                        .attr("cx", wage)
+                        .attr("cy", education)
+                        .attr("r", 8)
+                        .style("fill-opacity", 0.7)
+                        .style("fill", "red");
+                    count+=1;
+                };
+            });
+            chart.append("text")
+                .attr("x", svgWidth/2 )
+                .attr("y", svgHeight-50 )
+                .style("text-anchor", "middle")
+                .text("Wage");
+        };
+        requestData();
+
+    </script>
+
+</body>
+</html>

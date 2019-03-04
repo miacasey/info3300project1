@@ -1,0 +1,149 @@
+﻿name,id,code
+Albania,8,ALB
+Algeria,12,DZA
+Angola,24,AGO
+Argentina,32,ARG
+Armenia,51,ARM
+Australia,36,AUS
+Austria,40,AUT
+Azerbaijan,31,AZE
+Bahamas,44,BHS
+Bahrain,48,BHR
+Bangladesh,50,BGD
+Barbados,52,BRB
+Belarus,112,BLR
+Belgium,56,BEL
+Belize,84,BLZ
+Benin,204,BEN
+Bhutan,64,BTN
+Bolivia,68,BOL
+Bosnia and Herzegovina,70,BIH
+Botswana,72,BWA
+Brazil,76,BRA
+Brunei Darussalam,96,BRN
+Bulgaria,100,BGR
+Burkina Faso,854,BFA
+Burundi,108,BDI
+Ivory Coast,26,
+Cambodia,116,KHM
+Cameroon,28,CMR
+Canada,29,CAN
+Cape Verde,30,CPV
+Iceland,31,
+Chad,32,TCD
+Chile,33,CHL
+China,34,CHN
+Colombia,35,COL
+Costa Rica,36,CRI
+Croatia,37,HRV
+Cuba,38,CUB
+Cyprus,39,CYP
+Czech Republic,40,CZE
+Denmark,41,DNK
+Dominican Republic,42,DOM
+Ecuador,43,ECU
+Egypt,44,EGY
+El Salvador,45,SLV
+Estonia,46,EST
+Ethiopia,47,ETH
+Fiji,48,FJI
+Finland,49,FIN
+France,50,FRA
+Gambia,51,GMB
+Georgia,52,GEO
+Germany,53,DEU
+Ghana,54,GHA
+Greece,55,GRC
+Guatemala,56,GTM
+Guinea,57,GIN
+Guyana,58,GUY
+Honduras,59,HND
+Hungary,60,HUN
+India,61,IND
+Indonesia,62,IDN
+Iran,63,IRN
+Ireland,64,IRL
+Israel,65,ISR
+Italy,66,ITA
+Jamaica,67,JAM
+Japan,68,JPN
+Jordan,69,JOR
+Kazakhstan,70,KAZ
+Kenya,71,KEN
+South Korea,72,KOR
+Kuwait,73,KWT
+Kyrgyzstan,74,KGZ
+Laos,75,LAO
+Latvia,76,LVA
+Lebanon,77,LBN
+Lesotho,78,LSO
+Liberia,79,LBR
+Lithuania,80,LTU
+Luxembourg,81,LUX
+Macedonia,82,MKD
+Madagascar,83,MDG
+Malawi,84,MWI
+Malaysia,85,MYS
+Maldives,86,MDV
+Mali,87,MLI
+Malta,88,MLT
+Mauritania,89,MRT
+Mauritius,90,MUS
+Mexico,91,MEX
+Moldova,92,MDA
+Mongolia,93,MNG
+Montenegro,94,MNE
+Morocco,95,MAR
+Mozambique,96,MOZ
+Namibia,97,NAM
+Nepal,98,NPL
+Netherlands,99,NLD
+New Zealand,100,NZL
+Nicaragua,101,NIC
+Nigeria,102,NGA
+Norway,103,NOR
+Oman,104,OMN
+Pakistan,105,PAK
+Panama,106,PAN
+Paraguay,107,PRY
+Peru,108,PER
+Philippines,109,PHL
+Poland,110,POL
+Portugal,111,PRT
+Qatar,112,QAT
+Romania,113,ROU
+Russia,114,RUS
+Rwanda,115,RWA
+Saudi Arabia,116,SAU
+Senegal,117,SEN
+Serbia,118,SRB
+Singapore,119,SGP
+Slovakia,120,SVK
+Slovenia,121,SVN
+South Africa,122,ZAF
+Spain,123,ESP
+Sri Lanka,124,LKA
+Suriname,125,SUR
+Swaziland,126,SWZ
+Sweden,127,SWE
+Switzerland,128,SWZ
+Syria,129,SYR
+Tajikistan,130,TJK
+Tanzania,131,TZA
+Thailand,132,THA
+Timor-Leste,133,TLS
+Trinidad and Tobago,134,TTO
+Tunisia,135,TUN
+Turkey,136,TUR
+Uganda,137,UGA
+Ukraine,138,UKR
+United Arab Emirates,139,ARE
+United Kingdom,140,GBR
+United States,141,USA
+Uruguay,142,URY
+Uzbekistan,143,UZB
+Venezuela,144,VEN
+Vietnam,145,VNM
+Yemen,146,YEM
+Zambia,147,ZMB
+Zimbabwe,148,ZWE
