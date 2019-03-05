@@ -54,12 +54,11 @@
 <body>
     <svg id="choropleth" height="600" width="900" style="background: white; margin-top:20px" >
     </svg>
-    <svg id="colorLegend" height="100" width="900" style="background: #fff; margin-top:20px" >
-    </svg>
 
     <svg id="chart" height="600" width="900" style="background: #fff; margin-top:20px">
     </svg>
-
+    <svg id="choropleth2" height="600" width="900" style="background: white; margin-top:20px" >
+    </svg>
     <script id="map">
         const svg= d3.select("#choropleth");
         const width= svg.attr("width");
@@ -162,7 +161,7 @@
                 .text("Education Gap Scale")
                 .attr("transform","translate(70,0)")
             const sizeScale= d3.scaleLinear().domain([0,50]).range([minMaxEducation[0],minMaxEducation[1]]);
-            
+
             // const chart= d3.select("#chart");
             // const svgWidth= svg.attr("width");
             // const svgHeight= svg.attr("height");
