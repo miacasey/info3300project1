@@ -72,8 +72,6 @@
     <h2><span class="year-of-report">2016 </span>Global Gender Gap</h2>
     <svg id="choropleth" height="600" width="900" style="background: white; margin-top:20px" >
     </svg>
-    <!-- <svg id="chart" height="600" width="900" style="background: #fff; margin-top:20px">
-    </svg> -->
     <svg id="choropleth2" height="600" width="900" style="background: white; margin-top:20px" >
     </svg>
     <script id="map">
@@ -105,7 +103,7 @@
             const features= countries.features;
             const projection= d3.geoEqualEarth().fitSize([mapWidth, mapHeight], countries);
             const path= d3.geoPath().projection(projection);
-
+            // function to make the topoJSON world map and individual country paths
             function makeMap(map){
                 map.selectAll("path").data(countries.features)
                     .enter()
@@ -118,11 +116,14 @@
                     .attr("class", "outline")
                     .attr("d", path);
             }
+            // draw the map in both SVG elements
             makeMap(map);
             makeMap(map2);
-
+            // load the csv data containing the gender gap statistics by country
             const genderData= await d3.csv("gendergap.csv");
+            // load the tsv data containing the country iso codes and ID
             const countryID= await d3.tsv("countries.tsv");
+            // create and populating 4 dictionaries: one for the wage gap in 2016, one for the education gap in 2016, one for the political engagement gap in 2016, and one mapping country ID to country name
             let countryWageGap= {};
             let countryEducationGap= {};
             let countryPoliticalGap= {};
@@ -144,13 +145,14 @@
                     countryPoliticalGap[row.country]= Number(row.score);
                 }
             });
+            // calculate domains and create scales for economic, education, and political data dictionaries
             const minMax= d3.extent(countryID, d=> countryWageGap[d.name]).reverse();
             const colorScale= d3.scaleSequential(d3.interpolateReds).domain(minMax);
             const minMaxEducation= d3.extent(countryID, d=> countryEducationGap[d.name]).reverse();
             const radScale= d3.scaleLinear().domain(minMaxEducation).range([8,50]);
             const minMaxPolitical= d3.extent(countryID, d=> countryPoliticalGap[d.name]).reverse();
             const colorScale2= d3.scaleSequential(d3.interpolateBlues).domain(minMaxPolitical);
-
+            // addings bubbles to the first map using dictionaries, scales, and the .centroid element in topoJSON
             map.selectAll(".centroid").data(features)
                 .enter().append("circle")
                     .attr("class", "centroid")
@@ -161,21 +163,18 @@
                     .attr("r", d=> radScale(countryEducationGap[idToCountry[d.id]]))
                     .attr("cx", function (d){ return path.centroid(d)[0]; })
                     .attr("cy", function (d){ return path.centroid(d)[1]; });
-
+            // addings bubbles to the second map using dictionaries, scales, and the .centroid element in topoJSON
             map2.selectAll(".centroid").data(features)
                 .enter().append("circle")
                     .attr("class", "centroid")
                     .attr("fill", d => colorScale2( countryPoliticalGap[ idToCountry[d.id] ] ))
                     .style("fill-opacity", function(d){ 
-                        if (countryPoliticalGap[ idToCountry[d.id] ]==0.0){ return 0.0}
+                        if (countryPoliticalGap[ idToCountry[d.id] ]==0.0){ return 0.0; }
                     })
                     .attr("r", d=> radScale(countryEducationGap[idToCountry[d.id]]))
                     .attr("cx", function (d){ return path.centroid(d)[0]; })
                     .attr("cy", function (d){ return path.centroid(d)[1]; });
-            
-            
-            // ECONOMY GAP LEGEND
-            // make color legend function
+            // function to create the color (choropleth) legend
             function makeChoroplethLegend(svg, minMax, colorScale, type, xPos){
                 const legend= svg.append("g")
                         .attr("class", "legend")
@@ -186,7 +185,7 @@
                 legend.append("text")
                         .attr("font-size", "10px")
                         .text("(% Difference between Men and Women)")
-                        .attr("transform","translate(15,15)")
+                        .attr("transform","translate(15,15)");
                 const legendWidth= 220;
                 const legendHeight = 50;;
                 const barHeight = 20;
@@ -206,24 +205,23 @@
                         .attr("width", stepSize)
                         .attr("height",barHeight)
                         .style("fill", colorScale( pixelScale(i) )); 
-                }
-            }
+                };
+            };
+            // create the color legend and add it to each map (map 1: economic, map 2: political)
             makeChoroplethLegend(svg, minMax, colorScale, "Economic Activities", 18);
             makeChoroplethLegend(svg2, minMaxPolitical, colorScale2, "Political Representation", 18);
-
-            // EDUCATION GAP LEGEND
-            // make circle legend function
+            // function to create bubble size legend
             function makeCircleLegend(svg, scale){
                 const legend2= svg.append("g")
                     .attr("class", "legend")
-                    .attr("transform","translate(50,260)")
+                    .attr("transform","translate(50,260)");
                 legend2.append("text")
                     .text("Education Gap Scale")
-                    .attr("transform","translate(60,0)")
+                    .attr("transform","translate(60,0)");
                 legend2.append("text")
                     .attr("font-size", "10px")
                     .text("(% Difference between Men and Women)")
-                    .attr("transform","translate(15,15)")
+                    .attr("transform","translate(15,15)");
                 legend2.append("circle")
                     .attr("transform","translate(105,55)")
                     .attr("r", scale(0.5));
@@ -246,58 +244,9 @@
                     .attr("transform","translate(97,73)")
                     .text("10%");
             };
+            // create the circle legend and add it to each map (education)
             makeCircleLegend(svg, radScale);
             makeCircleLegend(svg2, radScale);
-
-            // const chart= d3.select("#chart");
-            // const svgWidth= svg.attr("width");
-            // const svgHeight= svg.attr("height");
-            // const chartMargin = { top: 100, right: 100, bottom: 100, left: 100};
-            // let chartWidth= svgWidth - chartMargin.left - chartMargin.right;
-            // let chartHeight= svgHeight - chartMargin.top - chartMargin.bottom;
-            // const wageScale= d3.scaleLinear().domain(minMax.reverse()).range([0,chartWidth]);
-            // const educationScale= d3.scaleLinear().domain(minMaxEducation.reverse()).range([chartHeight, 0]);
-            // let leftAxis= d3.axisLeft(educationScale).ticks(20);
-            // chart.append("g")
-            //     .attr("transform", "translate("+ chartMargin.left +","+ chartMargin.top +")")
-            //     .call(leftAxis);
-            // let bottomAxis= d3.axisBottom(wageScale).ticks(20)
-            // let element= chart.append("g")
-            //     .attr("transform", "translate("+ chartMargin.left +","+ (chartMargin.top + chartHeight) +")");
-            // bottomAxis(element);
-            // let leftGridlines= d3.axisLeft(educationScale).tickSize(-chartWidth-10).tickFormat("");
-            // chart.append("g").attr("class", "gridlines")
-            //     .attr("transform","translate("+ chartMargin.left +","+ chartMargin.top +")")
-            //     .call(leftGridlines);
-            // let bottomGridlines = d3.axisBottom(wageScale).tickSize(-chartHeight).tickFormat("").ticks(20);
-            // element = chart.append("g").attr("class", "gridlines")
-            //     .attr("transform","translate("+ chartMargin.left +","+ (chartMargin.top + chartHeight) +")");
-            // bottomGridlines(element);
-            // let scatter = chart.append("g")
-            //     .attr("transform","translate("+chartMargin.left+","+chartMargin.top+")");
-            // let count=0
-            // countryID.forEach( row => {
-            //     let wage= wageScale(countryWageGap[idToCountry[row.iso_n3]]);
-            //     let education= educationScale(countryEducationGap[idToCountry[row.iso_n3]]);
-            //     if (wage!=0.0 && education!=0.0){
-            //         let circle= scatter.append("circle")
-            //             .attr("cx", wage)
-            //             .attr("cy", education)
-            //             .attr("r", 8)
-            //             .style("fill-opacity", 0.7)
-            //             .style("fill", "red");
-            //         count+=1;
-            //     };
-            // });
-            // chart.append("text")
-            //     .attr("x", svgWidth/2 )
-            //     .attr("y", svgHeight-50 )
-            //     .style("text-anchor", "middle")
-            //     .text("Wage");
-
-            // MAP 2: GENDER PAY GAP vs. POLITICAL INVOLVEMENT
-            
-            
         };
         requestData();
 
