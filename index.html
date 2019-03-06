@@ -23,9 +23,6 @@
         .gridlines line {
             stroke: #bbb;
         }
-        .gridlines .domain {
-            stroke: none;
-        }
         .title { 
             font-family: Nunito;
             font-size: 24px; 
@@ -47,7 +44,6 @@
             font-family: Nunito;
             font-size: 9px;
         }
-
     </style>
     <title>Project 1</title>
 </head>
@@ -88,7 +84,7 @@
             const features= countries.features;
             const projection= d3.geoEqualEarth().fitSize([mapWidth, mapHeight], countries);
             const path= d3.geoPath().projection(projection);
-            
+
             function makeMap(map){
                 map.selectAll("path").data(countries.features)
                     .enter()
