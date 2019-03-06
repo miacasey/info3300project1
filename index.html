@@ -20,9 +20,6 @@
         .centroid {
             fill-opacity: 0.8;
         }
-        .legend span {
-            margin-right: 5px;
-        }
         .gridlines line {
             stroke: #bbb;
         }
@@ -42,6 +39,10 @@
             font-family: Nunito;
             font-size: 12px;
         }
+        .legend circle {
+            fill:none;
+            stroke: #ccc;
+        }
         .axis {
             font-family: Nunito;
             font-size: 9px;
@@ -54,16 +55,15 @@
 <body>
     <svg id="choropleth" height="600" width="900" style="background: white; margin-top:20px" >
     </svg>
-
-    <svg id="chart" height="600" width="900" style="background: #fff; margin-top:20px">
-    </svg>
+    <!-- <svg id="chart" height="600" width="900" style="background: #fff; margin-top:20px">
+    </svg> -->
     <svg id="choropleth2" height="600" width="900" style="background: white; margin-top:20px" >
     </svg>
     <script id="map">
-        const svg= d3.select("#choropleth");
+        let svg= d3.select("#choropleth");
         const width= svg.attr("width");
         const height= svg.attr("height");
-        const margin = { top: 0, right: 0, bottom: 0, left:20};
+        const margin = { top: 0, right: 0, bottom: 0, left:50};
         const mapWidth = width - margin.left - margin.right;
         const mapHeight = height - margin.top - margin.bottom;
         svg.append("text")
@@ -111,7 +111,7 @@
             const minMax= d3.extent(countryID, d=> countryWageGap[d.name]).reverse();
             const colorScale= d3.scaleSequential(d3.interpolateReds).domain(minMax);
             const minMaxEducation= d3.extent(countryID, d=> countryEducationGap[d.name]).reverse();
-            const radScale= d3.scaleLinear().domain(minMaxEducation).range([5,50]);
+            const radScale= d3.scaleLinear().domain(minMaxEducation).range([8,50]);
             map.selectAll(".centroid").data(features)
                 .enter().append("circle")
                     .attr("class", "centroid")
@@ -122,7 +122,8 @@
                     .attr("r", d=> radScale(countryEducationGap[idToCountry[d.id]]))
                     .attr("cx", function (d){ return path.centroid(d)[0]; })
                     .attr("cy", function (d){ return path.centroid(d)[1]; });
-                    
+            
+            // PAY GAP LEGEND
             const legend= svg.append("g")
                     .attr("class", "legend")
                     .attr("transform","translate(65,380)")
@@ -153,14 +154,38 @@
                     .attr("height",barHeight)
                     .style("fill", colorScale( pixelScale(i) )); 
             }
-            
+            // EDUCATION GAP LEGEND
             const legend2= svg.append("g")
-                    .attr("class", "legend")
-                    .attr("transform","translate(50,300)")
+                .attr("class", "legend")
+                .attr("transform","translate(50,280)")
             legend2.append("text")
                 .text("Education Gap Scale")
-                .attr("transform","translate(70,0)")
-            const sizeScale= d3.scaleLinear().domain([0,50]).range([minMaxEducation[0],minMaxEducation[1]]);
+                .attr("transform","translate(60,0)")
+            legend2.append("text")
+                .attr("font-size", "10px")
+                .text("(% Difference between Men and Women)")
+                .attr("transform","translate(15,15)")
+            legend2.append("circle")
+                .attr("transform","translate(105,55)")
+                .attr("r", radScale(0.5));
+            legend2.append("circle")
+                .attr("transform","translate(105,63)")
+                .attr("r", radScale(0.7));
+            legend2.append("circle")
+                .attr("transform","translate(105,71)")
+                .attr("r", radScale(0.9));
+            legend2.append("text")
+                .attr("font-size", "8px")
+                .attr("transform","translate(97,40)")
+                .text("50%");
+            legend2.append("text")
+                .attr("font-size", "8px")
+                .attr("transform","translate(97,56)")
+                .text("30%");
+            legend2.append("text")
+                .attr("font-size", "8px")
+                .attr("transform","translate(97,73)")
+                .text("10%");
 
             // const chart= d3.select("#chart");
             // const svgWidth= svg.attr("width");
@@ -207,6 +232,14 @@
             //     .attr("y", svgHeight-50 )
             //     .style("text-anchor", "middle")
             //     .text("Wage");
+
+            // MAP 2: GENDER PAY GAP vs. POLITICAL INVOLVEMENT
+            svg= d3.select("#choropleth2");
+            svg.append("text")
+                .text("Gender Pay Gap versus Political Gender Gap")
+                .attr("x", width/2 )
+                .attr("y", 20 )
+                .attr("class", "title");
         };
         requestData();
 
